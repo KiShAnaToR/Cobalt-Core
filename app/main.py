@@ -25,12 +25,24 @@ app.add_middleware(
 
 @app.post("/upload_resume")
 async def upload_resume(file: UploadFile = File(...)):
-    if file.content_type not in ["application/pdf", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
+    # validate file type
+    if file.content_type not in [
+        "application/pdf",
+        "text/plain",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ]:
         raise HTTPException(status_code=400, detail="Unsupported file type")
-    content = await file.read()
-    text = resume_parser.extract_text(content, file.filename)
-    data = resume_parser.parse_resume(text)
-    return {"parsed": data}
+
+    try:
+        content = await file.read()
+        text = resume_parser.extract_text(content, file.filename)
+        data = resume_parser.parse_resume(text)
+        return {"parsed": data}
+    except Exception as e:
+        # log exception if necessary (stdout for now)
+        print(f"resume upload error: {e}")
+        # return JSON error so frontend can parse
+        raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 

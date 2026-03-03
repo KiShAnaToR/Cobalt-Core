@@ -683,7 +683,7 @@
     // Resume Upload
     document.getElementById('uploadBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('resumeFile');
-        if (!fileInput.files.length) return showStatus('resumeStatus', '⚠️ Please select a file', 'warning');
+        if (!fileInput.files.length) return showStatus('resumeStatus', '⚠️ Please select a file', 'error');
         
         const form = new FormData();
         form.append('file', fileInput.files[0]);
@@ -691,6 +691,11 @@
         showStatus('resumeStatus', '⏳ Uploading...', 'info');
         try {
             const res = await fetch('/upload_resume', { method: 'POST', body: form });
+            if (!res.ok) {
+                // try to extract error body (could be text or json)
+                const text = await res.text();
+                throw new Error(text || `HTTP ${res.status}`);
+            }
             const data = await res.json();
             resumeData = data.parsed;
             
@@ -698,7 +703,7 @@
             document.getElementById('parsed').textContent = JSON.stringify(resumeData, null, 2);
             document.getElementById('parsed').style.display = 'block';
         } catch (e) {
-            showStatus('resumeStatus', '❌ Error: ' + e.message, 'error');
+            showStatus('resumeStatus', '❌ Upload failed: ' + e.message, 'error');
         }
     });
 
