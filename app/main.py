@@ -59,12 +59,24 @@ def submit_answer(payload: dict, db: Session = Depends(get_db)):
     answer = payload.get('answer')
     history = payload.get('history', [])
     # record entry if session exists
+    session = None
     if session_id is not None:
-        qa = models.QAEntry(session_id=session_id, question=history[-1].get('question') if history else None, answer=answer)
+        session = db.query(models.InterviewSession).get(session_id)
+        qa = models.QAEntry(
+            session_id=session_id,
+            question=history[-1].get('question') if history else None,
+            answer=answer,
+        )
         db.add(qa)
         db.commit()
     result = interviewer.evaluate_answer(answer, history)
-    return result
+    response = {"evaluation": result}
+    # generate next question if we know the role/resume
+    if session:
+        new_history = history + [{"question": history[-1].get('question') if history else None, "answer": answer}]
+        next_q = interviewer.next_question(session.role, session.resume_data, new_history)
+        response["next_question"] = next_q
+    return response
 
 @app.post("/feedback")
 def get_feedback(payload: dict):
@@ -82,9 +94,15 @@ async def video_audio(file: UploadFile = File(...), history: str = Form("[]"), s
         hist = []
     result = interviewer.transcribe_and_evaluate(bytes_data, hist)
     # optionally store as QA entry
+    session = None
     if session_id is not None:
+        session = db.query(models.InterviewSession).get(session_id)
         transcription = result.get('transcript')
         qa = models.QAEntry(session_id=session_id, question=hist[-1].get('question') if hist else None, answer=transcription)
         db.add(qa)
         db.commit()
-    return result
+    response = {**result}
+    if session:
+        new_history = hist + [{"question": hist[-1].get('question') if hist else None, "answer": result.get('transcript')}]
+        response["next_question"] = interviewer.next_question(session.role, session.resume_data, new_history)
+    return response

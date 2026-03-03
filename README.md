@@ -10,6 +10,11 @@
 - **Frontend Web UI:** a single‑page HTML interface combining all functionality; persists interview history in JavaScript for context.
 - **API Endpoints:** FastAPI backend with `/upload_resume`, `/start_interview`, `/submit_answer`, `/feedback`, and `/video_audio`.
 
+### Configuration
+
+- Set `OPENAI_API_KEY` in your environment to enable real AI question generation, transcription, and analysis.
+- Optionally specify `DATABASE_URL` (e.g. `sqlite:///cobalt.db` or a PostgreSQL URL) to persist interview sessions. Defaults to `sqlite:///cobalt.db`.
+
 ## Tech Stack
 - **Backend:** Python (FastAPI)
 - **AI Engine:** Google Gemini AI
