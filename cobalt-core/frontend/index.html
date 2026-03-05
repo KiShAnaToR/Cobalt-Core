@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cobalt Core — AI Interview Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --cobalt:   #1a3a6b;
+      --cobalt-l: #2e5fab;
+      --ice:      #e8f0fd;
+      --sky:      #adc8ff;
+      --mint:     #00c9a7;
+      --amber:    #f59e0b;
+      --red:      #ef4444;
+      --bg:       #f4f6fb;
+      --surface:  #ffffff;
+      --border:   #dce5f5;
+      --text:     #1a2238;
+      --muted:    #6b7a9e;
+      --radius:   14px;
+      --shadow:   0 4px 24px rgba(26,58,107,.09);
+      --shadow-lg:0 12px 48px rgba(26,58,107,.18);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ─── Typography ─── */
+    h1, h2, h3 { font-family: 'DM Serif Display', serif; line-height: 1.2; }
+    code, pre   { font-family: 'DM Mono', monospace; }
+
+    /* ─── Layout ─── */
+    .topbar {
+      background: var(--cobalt);
+      color: #fff;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 20px rgba(0,0,0,.25);
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      letter-spacing: .02em;
+    }
+    .topbar-brand .dot { color: var(--sky); }
+    .topbar-nav {
+      display: flex;
+      gap: 6px;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 7px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      transition: background .2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.22); }
+    .nav-btn.active { background: var(--cobalt-l); border-color: var(--sky); }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+    }
+
+    /* ─── Page Sections ─── */
+    .page { display: none; animation: fadeUp .3s ease both; }
+    .page.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card + .card { margin-top: 24px; }
+    .card-head {
+      background: linear-gradient(135deg, var(--cobalt) 0%, var(--cobalt-l) 100%);
+      color: #fff;
+      padding: 18px 24px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-body { padding: 24px; }
+
+    /* ─── Hero ─── */
+    .hero {
+      background: linear-gradient(140deg, var(--cobalt) 0%, #0f2855 40%, #1a3a6b 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 56px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(173,200,255,.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero h1 { font-size: 2.6rem; margin-bottom: 12px; }
+    .hero p  { font-size: 1.05rem; opacity: .85; max-width: 520px; margin: 0 auto 28px; }
+
+    /* ─── Steps ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .step {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-align: center;
+      background: var(--surface);
+    }
+    .step-num {
+      width: 44px; height: 44px;
+      background: var(--cobalt);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      font-family: 'DM Serif Display', serif;
+      margin: 0 auto 14px;
+    }
+    .step h3 { font-size: 1rem; margin-bottom: 6px; color: var(--cobalt); }
+    .step p  { font-size: .88rem; color: var(--muted); line-height: 1.55; }
+
+    /* ─── Inner Tab System ─── */
+    .tabs {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .tab-bar {
+      display: flex;
+      background: var(--ice);
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+    }
+    .tab-bar::-webkit-scrollbar { height: 3px; }
+    .tab-bar::-webkit-scrollbar-thumb { background: var(--cobalt); }
+    .tab-item {
+      flex-shrink: 0;
+      padding: 14px 22px;
+      border: none;
+      background: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .tab-item:hover { color: var(--cobalt); background: rgba(26,58,107,.04); }
+    .tab-item.active {
+      color: var(--cobalt);
+      border-bottom-color: var(--cobalt-l);
+      background: var(--surface);
+      font-weight: 600;
+    }
+    .tab-panel { display: none; padding: 28px; }
+    .tab-panel.active { display: block; animation: fadeUp .25s ease both; }
+
+    /* ─── Form Controls ─── */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-weight: 500;
+      font-size: .88rem;
+      margin-bottom: 6px;
+      color: var(--cobalt);
+    }
+    input[type=text],
+    input[type=file],
+    textarea,
+    select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      font-size: .93rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    input[type=text]:focus,
+    textarea:focus { border-color: var(--cobalt-l); box-shadow: 0 0 0 3px rgba(46,95,171,.12); }
+    textarea { min-height: 110px; resize: vertical; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border: none;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .btn:disabled { opacity: .45; pointer-events: none; }
+    .btn-primary {
+      background: var(--cobalt);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--cobalt-l); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,58,107,.28); }
+    .btn-outline {
+      background: transparent;
+      color: var(--cobalt);
+      border: 2px solid var(--cobalt);
+    }
+    .btn-outline:hover { background: var(--cobalt); color: #fff; }
+    .btn-mint { background: var(--mint); color: #fff; }
+    .btn-mint:hover { filter: brightness(.92); transform: translateY(-1px); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { filter: brightness(.9); }
+    .btn-full { width: 100%; justify-content: center; }
+    .btn-sm { padding: 7px 14px; font-size: .82rem; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+    /* ─── Alerts ─── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 9px;
+      font-size: .9rem;
+      margin-bottom: 14px;
+      display: none;
+      border-left: 4px solid;
+    }
+    .alert.show { display: block; }
+    .alert-info    { background: #e3f0ff; color: #1a4a8f; border-color: var(--cobalt-l); }
+    .alert-success { background: #e8fdf5; color: #006e4a; border-color: var(--mint); }
+    .alert-error   { background: #fff0f0; color: #b91c1c; border-color: var(--red); }
+    .alert-warn    { background: #fffbea; color: #92400e; border-color: var(--amber); }
+
+    /* ─── Score Grid ─── */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .score-card {
+      background: linear-gradient(135deg, var(--cobalt) 0%, var(--cobalt-l) 100%);
+      color: #fff;
+      padding: 20px 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .score-val  { font-size: 2rem; font-weight: 700; font-family: 'DM Serif Display', serif; line-height: 1; }
+    .score-lbl  { font-size: .75rem; opacity: .85; margin-top: 4px; }
+
+    /* ─── Result Box ─── */
+    .result-box {
+      background: var(--ice);
+      border-left: 4px solid var(--cobalt-l);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      font-size: .93rem;
+      line-height: 1.65;
+    }
+    .result-box.green { border-left-color: var(--mint); background: #edfdf8; }
+    .result-box.amber { border-left-color: var(--amber); background: #fffbea; }
+
+    /* ─── Question bubble ─── */
+    .q-bubble {
+      background: linear-gradient(135deg, var(--cobalt) 0%, var(--cobalt-l) 100%);
+      color: #fff;
+      padding: 20px 22px;
+      border-radius: 14px 14px 14px 4px;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .q-bubble .label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .75;
+      margin-bottom: 8px;
+    }
+
+    /* ─── Video ─── */
+    .video-wrap {
+      background: #0a1628;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin: 16px 0;
+      aspect-ratio: 16/9;
+    }
+    .video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .video-status {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.6);
+      color: #fff;
+      padding: 10px 16px;
+      font-size: .85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rec-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 1s infinite;
+      display: none;
+    }
+    .recording .rec-dot { display: block; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .3; }
+    }
+
+    /* ─── History ─── */
+    .session-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--surface);
+    }
+    .session-row:hover { border-color: var(--cobalt-l); background: var(--ice); }
+    .session-row .role { font-weight: 600; color: var(--cobalt); }
+    .session-row .date { font-size: .82rem; color: var(--muted); }
+
+    /* ─── Tags ─── */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      background: var(--ice);
+      color: var(--cobalt);
+      border: 1px solid var(--border);
+      margin: 2px;
+    }
+    .tag.green { background: #edfdf8; color: #006e4a; border-color: #a7f3d0; }
+    .tag.amber { background: #fffbea; color: #92400e; border-color: #fde68a; }
+    .tag.red   { background: #fff0f0; color: #b91c1c; border-color: #fecaca; }
+
+    /* ─── Divider ─── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* ─── Modal ─── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10,22,40,.5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 90%;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+      animation: fadeUp .25s ease both;
+    }
+    .modal h2 { margin-bottom: 12px; color: var(--cobalt); }
+    .modal p  { color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+    .modal-close { float: right; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); margin-top: -4px; }
+    .modal-close:hover { color: var(--text); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .shell    { padding: 20px 14px 60px; }
+      .hero     { padding: 36px 24px; }
+      .hero h1  { font-size: 1.8rem; }
+      .tab-item { padding: 12px 14px; font-size: .82rem; }
+      .topbar   { padding: 0 16px; }
+    }
+
+    /* ─── Spinner ─── */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Chips for tags ─── */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    /* ─── Progress bar ─── */
+    .progress-bar-wrap { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; margin: 6px 0 2px; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--cobalt-l), var(--mint)); border-radius: 99px; transition: width .6s ease; }
+  </style>
+</head>
+<body>
+
+<!-- ══ Top Bar ══════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-brand">
+    🎯 Cobalt<span class="dot">.</span>Core
+  </div>
+  <div class="topbar-nav">
+    <button class="nav-btn active" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('interview')">Interview</button>
+  </div>
+</div>
+
+<!-- ══ Shell ═════════════════════════════════════════════════════════════ -->
+<div class="shell">
+
+  <!-- ── Home Page ─────────────────────────────────────────────────────── -->
+  <div id="page-home" class="page active">
+    <div class="hero">
+      <h1>Practice Interviews.<br>Powered by AI.</h1>
+      <p>Upload your resume, choose a role, and get real-time AI feedback on your answers — text or voice.</p>
+      <button class="btn btn-outline" style="border-color:rgba(255,255,255,.5);color:#fff;" onclick="showPage('interview')">
+        Start Practicing →
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-head">📋 How It Works</div>
+      <div class="card-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Upload Resume</h3>
+            <p>PDF, DOCX or TXT. We extract your experience to generate relevant questions.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Pick a Mode</h3>
+            <p>Type your answers or record audio — Whisper transcribes it automatically.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Answer Questions</h3>
+            <p>Role-specific, context-aware questions generated just for you.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <h3>Get Feedback</h3>
+            <p>Score, strengths, improvements, vocabulary and clarity metrics.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;">
+      <div class="card">
+        <div class="card-head">✨ Features</div>
+        <div class="card-body">
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+            <li>🤖 <strong>AI Question Generation</strong> — context-aware, role-specific</li>
+            <li>🎙️ <strong>Voice Mode</strong> — record and get Whisper transcription</li>
+            <li>📊 <strong>Feedback Analytics</strong> — vocabulary, clarity, fillers, grammar</li>
+            <li>💾 <strong>Session History</strong> — track your progress over time</li>
+            <li>🔊 <strong>Voice Feedback</strong> — hear AI responses via TTS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">⚙️ Setup</div>
+        <div class="card-body">
+          <p style="margin-bottom:12px;font-size:.92rem;color:var(--muted);">To enable AI features, set your environment variables:</p>
+          <pre style="background:var(--ice);padding:12px;border-radius:8px;font-size:.83rem;overflow-x:auto;">OPENAI_API_KEY=sk-...
+DATABASE_URL=sqlite:///cobalt.db
+ENVIRONMENT=development</pre>
+          <p style="margin-top:12px;font-size:.88rem;color:var(--muted);">Without a key, the app still works using built-in fallback questions and heuristic scoring.</p>
+          <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="showPage('interview')">
+            Start Now →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Interview Page ────────────────────────────────────────────────── -->
+  <div id="page-interview" class="page">
+    <div class="tabs">
+      <div class="tab-bar">
+        <button class="tab-item active" onclick="switchTab('resume', this)">📄 Resume</button>
+        <button class="tab-item" onclick="switchTab('text', this)">💬 Text Mode</button>
+        <button class="tab-item" onclick="switchTab('video', this)">🎥 Video Mode</button>
+        <button class="tab-item" onclick="switchTab('analyze', this)">📊 Analyze</button>
+        <button class="tab-item" onclick="switchTab('history', this)">📜 History</button>
+      </div>
+
+      <!-- ── Resume Tab ─────────────────── -->
+      <div id="tab-resume" class="tab-panel active">
+        <h2 style="margin-bottom:6px;">Upload Your Resume</h2>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:20px;">Supports PDF, DOCX, and plain text files.</p>
+
+        <div class="field">
+          <label>Resume File</label>
+          <input type="file" id="resumeFile" accept=".pdf,.txt,.docx" />
+        </div>
+        <button class="btn btn-primary btn-full" id="uploadBtn" onclick="uploadResume()">
+          <span class="spinner" id="uploadSpinner"></span>
+          📤 Upload &amp; Parse
+        </button>
+
+        <div id="resumeAlert" class="alert" style="margin-top:14px;"></div>
+
+        <div id="resumePreview" style="display:none;margin-top:20px;">
+          <hr class="divider" />
+          <h3 style="margin-bottom:12px;">Parsed Resume Data</h3>
+          <div id="resumeParsedContent"></div>
+        </div>
+      </div>
+
+      <!-- ── Text Interview Tab ─────────── -->
+      <div id="tab-text" class="tab-panel">
+        <h2 style="margin-bottom:6px;">Text Interview</h2>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:20px;">Type your answers and receive instant AI feedback.</p>
+
+        <div id="textSetup">
+          <div class="field">
+            <label>Target Role</label>
+            <input type="text" id="textRole" placeholder="e.g., Senior Backend Engineer, Product Manager" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="startTextInterview()">
+            <span class="spinner" id="startSpinner"></span>
+            🎯 Start Interview
+          </button>
+          <div id="textSetupAlert" class="alert" style="margin-top:12px;"></div>
+        </div>
+
+        <div id="textInterview" style="display:none;">
+          <div class="q-bubble">
+            <div class="label">Question</div>
+            <div id="currentQuestion"></div>
+          </div>
+
+          <div class="field">
+            <label>Your Answer</label>
+            <textarea id="answerText" placeholder="Type your answer here… aim for 3–5 sentences with specific examples."></textarea>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-mint" onclick="submitAnswer()" style="flex:1;">
+              <span class="spinner" id="submitSpinner"></span>
+              ✓ Submit Answer
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="skipQuestion()">Skip →</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);" onclick="endTextInterview()">End Session</button>
+          </div>
+
+          <div id="evalSection" style="display:none;margin-top:20px;"></div>
+        </div>
+      </div>
+
+      <!-- ── Video Interview Tab ────────── -->
+      <div id="tab-video" class="tab-panel">
+        <h2 style="margin-bottom:6px;">Video Interview</h2>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:20px;">Record your answer — Whisper will transcribe and AI will evaluate it.</p>
+
+        <div id="videoSetup">
+          <div class="field">
+            <label>Target Role</label>
+            <input type="text" id="videoRole" placeholder="e.g., Product Manager" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="startVideoInterview()">
+            📹 Initialise Camera &amp; Start
+          </button>
+          <div id="videoSetupAlert" class="alert" style="margin-top:12px;"></div>
+        </div>
+
+        <div id="videoSession" style="display:none;">
+          <div id="videoQuestion" class="q-bubble">
+            <div class="label">Question</div>
+            <div id="videoQuestionText"></div>
+          </div>
+
+          <div class="video-wrap" id="videoWrap">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <div class="video-status" id="videoStatus">
+              <div class="rec-dot" id="recDot"></div>
+              <span id="videoStatusText">Camera ready</span>
+            </div>
+          </div>
+
+          <div class="btn-group" style="margin-top:8px;">
+            <button class="btn btn-mint" id="recordBtn" onclick="toggleRecord()" style="flex:1;">⏺ Record Answer</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);" onclick="endVideoInterview()">End Session</button>
+          </div>
+
+          <div id="videoResult" style="display:none;margin-top:20px;">
+            <h3 style="margin-bottom:10px;">Transcription</h3>
+            <div class="result-box" id="videoTranscript"></div>
+            <h3 style="margin:16px 0 10px;">AI Feedback</h3>
+            <div class="result-box green" id="videoFeedback"></div>
+            <div id="videoScoreSection"></div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" id="playAudioBtn" style="display:none;" onclick="playAudio()">🔊 Play Voice Feedback</button>
+            </div>
+            <audio id="aiAudio"></audio>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Analyze Tab ────────────────── -->
+      <div id="tab-analyze" class="tab-panel">
+        <h2 style="margin-bottom:6px;">Transcript Analysis</h2>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:20px;">Paste any interview response to analyze vocabulary, clarity, grammar, and filler words.</p>
+
+        <div class="field">
+          <label>Transcript</label>
+          <textarea id="analyzeTranscript" style="min-height:140px;" placeholder="Paste your interview answer or any speech transcript here…"></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="analyzeFeedback()">
+          <span class="spinner" id="analyzeSpinner"></span>
+          🔍 Analyze
+        </button>
+        <div id="analyzeAlert" class="alert" style="margin-top:12px;"></div>
+        <div id="analyzeResult" style="margin-top:20px;"></div>
+      </div>
+
+      <!-- ── History Tab ────────────────── -->
+      <div id="tab-history" class="tab-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <h2 style="margin-bottom:4px;">Interview History</h2>
+            <p style="color:var(--muted);font-size:.9rem;">All your past sessions.</p>
+          </div>
+          <button class="btn btn-primary" onclick="loadHistory()">↻ Refresh</button>
+        </div>
+        <div id="historyList"></div>
+        <div id="sessionDetail" style="display:none;margin-top:24px;"></div>
+      </div>
+
+    </div><!-- /tabs -->
+  </div><!-- /page-interview -->
+
+</div><!-- /shell -->
+
+<!-- ══ Modal ═════════════════════════════════════════════════════════════ -->
+<div id="modalBackdrop" class="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle"></h2>
+    <p id="modalBody"></p>
+    <button class="btn btn-primary btn-full" onclick="closeModal()">OK</button>
+  </div>
+</div>
+
+<script>
+// ─── State ──────────────────────────────────────────────────────────────
+const API = '';
+let resumeData = null;
+let sessionId  = null;
+let history    = [];
+let stream     = null;
+let recorder   = null;
+let chunks     = [];
+let aiAudioHex = null;
+
+// ─── Page / Tab Routing ─────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const idx = name === 'home' ? 0 : 1;
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ─── Utilities ──────────────────────────────────────────────────────────
+function showAlert(id, msg, type = 'info') {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert show alert-' + type;
+}
+function hideAlert(id) {
+  document.getElementById(id).classList.remove('show');
+}
+function showModal(title, body) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent  = body;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalBackdrop') || e.currentTarget.classList.contains('modal-close') || e.currentTarget.tagName === 'BUTTON') {
+    document.getElementById('modalBackdrop').classList.remove('open');
+  }
+}
+function setLoading(btnId, spinnerId, loading) {
+  const btn = document.getElementById(btnId);
+  const sp  = document.getElementById(spinnerId);
+  if (btn)  btn.disabled = loading;
+  if (sp)   sp.style.display = loading ? 'inline-block' : 'none';
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, opts);
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try { detail = (await res.json()).detail || detail; } catch(_) {}
+    throw new Error(detail);
+  }
+  return res.json();
+}
+
+// ─── Resume Upload ───────────────────────────────────────────────────────
+async function uploadResume() {
+  const file = document.getElementById('resumeFile').files[0];
+  if (!file) return showAlert('resumeAlert', '⚠ Please choose a file first.', 'warn');
+
+  setLoading('uploadBtn', 'uploadSpinner', true);
+  showAlert('resumeAlert', 'Uploading and parsing…', 'info');
+  document.getElementById('resumePreview').style.display = 'none';
+
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    const data = await apiFetch('/upload_resume', { method: 'POST', body: form });
+    resumeData = data.parsed;
+
+    showAlert('resumeAlert', '✅ Resume uploaded successfully!', 'success');
+
+    // Render parsed fields
+    const container = document.getElementById('resumeParsedContent');
+    container.innerHTML = '';
+    const fields = Object.entries(resumeData).filter(([k]) => k !== 'raw_text');
+    if (fields.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted)">No structured fields detected — the raw text will still be used for question generation.</p>';
+    } else {
+      fields.forEach(([key, val]) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'margin-bottom:10px;';
+        row.innerHTML = `<span style="font-weight:600;color:var(--cobalt);text-transform:capitalize;">${key.replace(/_/g,' ')}</span>: <span style="color:var(--muted);font-size:.9rem;">${String(val).substring(0,180)}</span>`;
+        container.appendChild(row);
+      });
+    }
+    document.getElementById('resumePreview').style.display = 'block';
+  } catch(e) {
+    showAlert('resumeAlert', '❌ ' + e.message, 'error');
+  } finally {
+    setLoading('uploadBtn', 'uploadSpinner', false);
+  }
+}
+
+// ─── Text Interview ──────────────────────────────────────────────────────
+async function startTextInterview() {
+  if (!resumeData) return showModal('Resume Required', 'Please upload your resume first (Resume tab).');
+  const role = document.getElementById('textRole').value.trim();
+  if (!role) return showAlert('textSetupAlert', '⚠ Please enter a target role.', 'warn');
+
+  hideAlert('textSetupAlert');
+  document.getElementById('startSpinner').style.display = 'inline-block';
+  document.getElementById('textSetup').querySelectorAll('button').forEach(b => b.disabled = true);
+
+  try {
+    const data = await apiFetch('/start_interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role, resume_data: resumeData }),
+    });
+    sessionId = data.session_id;
+    history = [];
+    document.getElementById('currentQuestion').textContent = data.question;
+    document.getElementById('textSetup').style.display = 'none';
+    document.getElementById('textInterview').style.display = 'block';
+    document.getElementById('evalSection').style.display = 'none';
+    document.getElementById('answerText').value = '';
+  } catch(e) {
+    showAlert('textSetupAlert', '❌ ' + e.message, 'error');
+  } finally {
+    document.getElementById('startSpinner').style.display = 'none';
+    document.getElementById('textSetup').querySelectorAll('button').forEach(b => b.disabled = false);
+  }
+}
+
+async function submitAnswer() {
+  const answer = document.getElementById('answerText').value.trim();
+  if (!answer) return showModal('Answer Required', 'Please type an answer before submitting.');
+
+  const question = document.getElementById('currentQuestion').textContent;
+  document.getElementById('submitSpinner').style.display = 'inline-block';
+  document.querySelector('#tab-text .btn-mint').disabled = true;
+
+  try {
+    const payload = { session_id: sessionId, answer, history };
+    const data = await apiFetch('/submit_answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const ev = data.evaluation || {};
+    history.push({ question, answer });
+    renderEvaluation(ev, 'evalSection');
+
+    // Load next question after short delay
+    if (data.next_question) {
+      setTimeout(() => {
+        document.getElementById('currentQuestion').textContent = data.next_question;
+        document.getElementById('answerText').value = '';
+        document.getElementById('evalSection').style.display = 'none';
+      }, 3000);
+    }
+  } catch(e) {
+    showModal('Error', 'Failed to submit: ' + e.message);
+  } finally {
+    document.getElementById('submitSpinner').style.display = 'none';
+    document.querySelector('#tab-text .btn-mint').disabled = false;
+  }
+}
+
+function skipQuestion() {
+  // Fetch next question without submitting
+  const role = document.getElementById('textRole').value.trim();
+  apiFetch('/start_interview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role, resume_data: resumeData }),
+  }).then(d => {
+    document.getElementById('currentQuestion').textContent = d.question;
+    document.getElementById('answerText').value = '';
+    document.getElementById('evalSection').style.display = 'none';
+  }).catch(() => {});
+}
+
+function endTextInterview() {
+  if (!confirm('End this session?')) return;
+  document.getElementById('textInterview').style.display = 'none';
+  document.getElementById('textSetup').style.display = 'block';
+  document.getElementById('textSetup').querySelectorAll('button').forEach(b => b.disabled = false);
+  history = []; sessionId = null;
+}
+
+function renderEvaluation(ev, containerId) {
+  const el = document.getElementById(containerId);
+  el.style.display = 'block';
+  const score = ev.score;
+  const scoreColor = score >= 8 ? '#00c9a7' : score >= 5 ? '#f59e0b' : '#ef4444';
+
+  let html = '';
+  if (score !== undefined && score !== null) {
+    html += `<div class="score-grid">
+      <div class="score-card" style="background:linear-gradient(135deg,${scoreColor},${scoreColor}cc);">
+        <div class="score-val">${score}<span style="font-size:1rem;">/10</span></div>
+        <div class="score-lbl">Score</div>
+      </div>
+    </div>`;
+  }
+
+  if (ev.feedback) {
+    html += `<div class="result-box"><strong>📝 Feedback</strong><br>${ev.feedback}</div>`;
+  }
+  if (ev.strengths && ev.strengths.length) {
+    html += `<div class="result-box green"><strong>✅ Strengths</strong><div class="chips">${ev.strengths.map(s=>`<span class="tag green">${s}</span>`).join('')}</div></div>`;
+  }
+  if (ev.improvements && ev.improvements.length) {
+    html += `<div class="result-box amber"><strong>💡 To Improve</strong><div class="chips">${ev.improvements.map(s=>`<span class="tag amber">${s}</span>`).join('')}</div></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// ─── Video Interview ─────────────────────────────────────────────────────
+async function startVideoInterview() {
+  if (!resumeData) return showModal('Resume Required', 'Please upload your resume first (Resume tab).');
+  const role = document.getElementById('videoRole').value.trim();
+  if (!role) return showAlert('videoSetupAlert', '⚠ Enter a target role first.', 'warn');
+
+  hideAlert('videoSetupAlert');
+  setVideoStatus('⏳ Initialising camera…');
+
+  try {
+    // Start interview session first
+    const data = await apiFetch('/start_interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role, resume_data: resumeData }),
+    });
+    sessionId = data.session_id;
+    history = [];
+    document.getElementById('videoQuestionText').textContent = data.question;
+
+    // Get camera
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('localVideo').srcObject = stream;
+    recorder = new MediaRecorder(stream);
+    chunks = [];
+
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    recorder.onstop = processVideoRecording;
+
+    setVideoStatus('✅ Camera ready — click Record to answer');
+    document.getElementById('videoSetup').style.display = 'none';
+    document.getElementById('videoSession').style.display = 'block';
+    document.getElementById('videoResult').style.display = 'none';
+  } catch(e) {
+    showAlert('videoSetupAlert', '❌ ' + e.message, 'error');
+    setVideoStatus('❌ Error: ' + e.message);
+  }
+}
+
+function toggleRecord() {
+  const btn = document.getElementById('recordBtn');
+  if (!recorder) return;
+
+  if (recorder.state === 'inactive') {
+    chunks = [];
+    recorder.start();
+    btn.textContent = '⏹ Stop Recording';
+    btn.classList.replace('btn-mint', 'btn-danger');
+    document.getElementById('videoWrap').classList.add('recording');
+    setVideoStatus('🎙 Recording…');
+    document.getElementById('videoResult').style.display = 'none';
+  } else {
+    recorder.stop();
+    btn.disabled = true;
+    btn.textContent = '⏳ Processing…';
+    setVideoStatus('⏳ Processing audio…');
+    document.getElementById('videoWrap').classList.remove('recording');
+  }
+}
+
+async function processVideoRecording() {
+  const btn = document.getElementById('recordBtn');
+  try {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const form = new FormData();
+    form.append('file', blob, 'response.webm');
+    form.append('history', JSON.stringify(history));
+    form.append('session_id', sessionId ?? '');
+
+    setVideoStatus('⏳ Transcribing with Whisper…');
+    const data = await apiFetch('/video_audio', { method: 'POST', body: form });
+
+    document.getElementById('videoTranscript').textContent = data.transcript || '[No transcription]';
+    const ev = data.evaluation || {};
+    document.getElementById('videoFeedback').textContent = ev.feedback || 'Evaluation complete.';
+
+    let scoreHtml = '';
+    if (ev.score !== undefined && ev.score !== null) {
+      const sc = ev.score;
+      const col = sc >= 8 ? '#00c9a7' : sc >= 5 ? '#f59e0b' : '#ef4444';
+      scoreHtml = `<div class="score-grid"><div class="score-card" style="background:linear-gradient(135deg,${col},${col}cc);">
+        <div class="score-val">${sc}<span style="font-size:1rem;">/10</span></div>
+        <div class="score-lbl">Score</div></div></div>`;
+    }
+    if (ev.strengths?.length) {
+      scoreHtml += `<div class="result-box green"><strong>✅ Strengths</strong><div class="chips">${ev.strengths.map(s=>`<span class="tag green">${s}</span>`).join('')}</div></div>`;
+    }
+    if (ev.improvements?.length) {
+      scoreHtml += `<div class="result-box amber"><strong>💡 To Improve</strong><div class="chips">${ev.improvements.map(s=>`<span class="tag amber">${s}</span>`).join('')}</div></div>`;
+    }
+    document.getElementById('videoScoreSection').innerHTML = scoreHtml;
+
+    // Push to history and update question
+    const prevQ = document.getElementById('videoQuestionText').textContent;
+    history.push({ question: prevQ, answer: data.transcript || '' });
+    if (data.next_question) {
+      document.getElementById('videoQuestionText').textContent = data.next_question;
+    }
+
+    // Try voice response
+    try {
+      const vr = await apiFetch('/ai_voice_response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: data.transcript, session_id: sessionId, history, role: document.getElementById('videoRole').value }),
+      });
+      if (vr.audio) {
+        aiAudioHex = vr.audio;
+        document.getElementById('playAudioBtn').style.display = 'inline-flex';
+      }
+    } catch(_) { /* TTS optional */ }
+
+    document.getElementById('videoResult').style.display = 'block';
+    setVideoStatus('✅ Done — review your feedback below');
+  } catch(e) {
+    setVideoStatus('❌ Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⏺ Record Answer';
+    btn.classList.replace('btn-danger', 'btn-mint');
+  }
+}
+
+function playAudio() {
+  if (!aiAudioHex) return;
+  const bytes = new Uint8Array(aiAudioHex.match(/../g).map(h => parseInt(h, 16)));
+  const blob  = new Blob([bytes], { type: 'audio/mpeg' });
+  const url   = URL.createObjectURL(blob);
+  const audio = document.getElementById('aiAudio');
+  audio.src = url;
+  audio.play();
+}
+
+function endVideoInterview() {
+  if (!confirm('End this session?')) return;
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  recorder = null;
+  document.getElementById('videoSession').style.display = 'none';
+  document.getElementById('videoSetup').style.display = 'block';
+  history = []; sessionId = null;
+}
+
+function setVideoStatus(msg) {
+  document.getElementById('videoStatusText').textContent = msg;
+}
+
+// ─── Feedback Analysis ───────────────────────────────────────────────────
+async function analyzeFeedback() {
+  const transcript = document.getElementById('analyzeTranscript').value.trim();
+  if (!transcript) return showAlert('analyzeAlert', '⚠ Paste a transcript to analyze.', 'warn');
+
+  document.getElementById('analyzeSpinner').style.display = 'inline-block';
+  hideAlert('analyzeAlert');
+  document.getElementById('analyzeResult').innerHTML = '';
+
+  try {
+    const data = await apiFetch('/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript }),
+    });
+
+    let html = `<div class="score-grid">`;
+    html += scoreCard(data.vocabulary_score + '%', 'Vocabulary Diversity');
+    html += scoreCard(data.clarity_score + '%', 'Clarity Score');
+    html += scoreCard(data.total_words, 'Total Words');
+    html += scoreCard(data.unique_words, 'Unique Words');
+    html += `</div>`;
+
+    // Vocab progress bars
+    html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:4px 0 16px;">
+      <div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--cobalt);margin-bottom:4px;">Vocabulary Score</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${data.vocabulary_score}%"></div></div>
+        <div style="font-size:.78rem;color:var(--muted);">${data.vocabulary_score}%</div>
+      </div>
+      <div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--cobalt);margin-bottom:4px;">Clarity Score</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${data.clarity_score}%;background:linear-gradient(90deg,var(--cobalt-l),var(--amber))"></div></div>
+        <div style="font-size:.78rem;color:var(--muted);">${data.clarity_score}%</div>
+      </div>
+    </div>`;
+
+    if (Object.keys(data.filler_words || {}).length) {
+      const tags = Object.entries(data.filler_words).map(([w,c]) => `<span class="tag amber">"${w}" ×${c}</span>`).join('');
+      html += `<div class="result-box amber"><strong>🗣 Filler Words</strong><div class="chips">${tags}</div></div>`;
+    }
+
+    if ((data.grammar_issues || []).length) {
+      const tags = data.grammar_issues.map(g => `<span class="tag red">${g}</span>`).join('');
+      html += `<div class="result-box" style="border-left-color:var(--red);background:#fff0f0;"><strong>✏️ Grammar</strong><div class="chips">${tags}</div></div>`;
+    }
+
+    const repKeys = Object.keys(data.repeated_words || {});
+    if (repKeys.length) {
+      const tags = repKeys.map(w => `<span class="tag">"${w}" ×${data.repeated_words[w]}</span>`).join('');
+      html += `<div class="result-box"><strong>🔁 Repeated Words</strong><div class="chips">${tags}</div></div>`;
+    }
+
+    if (data.ai_analysis) {
+      html += `<div class="result-box green"><strong>🤖 AI Assessment</strong><br>${data.ai_analysis}</div>`;
+    }
+
+    document.getElementById('analyzeResult').innerHTML = html;
+  } catch(e) {
+    showAlert('analyzeAlert', '❌ ' + e.message, 'error');
+  } finally {
+    document.getElementById('analyzeSpinner').style.display = 'none';
+  }
+}
+
+function scoreCard(val, label) {
+  return `<div class="score-card"><div class="score-val">${val}</div><div class="score-lbl">${label}</div></div>`;
+}
+
+// ─── History ─────────────────────────────────────────────────────────────
+async function loadHistory() {
+  document.getElementById('historyList').innerHTML = '<p style="color:var(--muted);">Loading…</p>';
+  document.getElementById('sessionDetail').style.display = 'none';
+  try {
+    const sessions = await apiFetch('/sessions');
+    if (!sessions.length) {
+      document.getElementById('historyList').innerHTML = '<p style="color:var(--muted);">No past sessions yet. Complete an interview to see history here.</p>';
+      return;
+    }
+    document.getElementById('historyList').innerHTML = sessions.map(s => {
+      const date = new Date(s.started_at).toLocaleString();
+      return `<div class="session-row" onclick="loadSessionDetail(${s.id})">
+        <div>
+          <div class="role">🎯 ${s.role || 'Unknown Role'}</div>
+          <div class="date">${date}</div>
+        </div>
+        <span style="font-size:1.2rem;color:var(--muted);">›</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('historyList').innerHTML = `<p style="color:var(--red);">❌ ${e.message}</p>`;
+  }
+}
+
+async function loadSessionDetail(id) {
+  try {
+    const session = await apiFetch(`/sessions/${id}`);
+    const date = new Date(session.started_at).toLocaleString();
+    let html = `<hr class="divider"/>
+      <h3 style="margin-bottom:4px;">Session: ${session.role}</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Started: ${date} · ${session.interactions.length} question(s)</p>`;
+
+    if (!session.interactions.length) {
+      html += '<p style="color:var(--muted);">No interactions recorded for this session.</p>';
+    } else {
+      session.interactions.forEach((qa, i) => {
+        const sc = qa.score ? `<span class="tag" style="float:right;">${qa.score}/10</span>` : '';
+        html += `<div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;background:var(--surface);">
+          <p style="font-weight:600;color:var(--cobalt);margin-bottom:6px;">Q${i+1}: ${qa.question || 'N/A'} ${sc}</p>
+          <p style="color:var(--muted);font-size:.9rem;margin-bottom:6px;">${qa.answer || 'No answer'}</p>
+          ${qa.feedback ? `<p style="font-size:.85rem;color:#006e4a;border-top:1px solid var(--border);padding-top:8px;margin-top:8px;">💡 ${qa.feedback}</p>` : ''}
+        </div>`;
+      });
+    }
+
+    const detail = document.getElementById('sessionDetail');
+    detail.innerHTML = html;
+    detail.style.display = 'block';
+    detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    showModal('Error', 'Could not load session: ' + e.message);
+  }
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────
+// Auto-load history when switching to its tab
+document.querySelectorAll('.tab-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.textContent.includes('History')) loadHistory();
+  });
+});
+
+// Keyboard shortcut: Esc closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
